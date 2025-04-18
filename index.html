@@ -1,0 +1,142 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row =>
+                    row.some(cell => cell !== '' && cell !== null && cell !== undefined)
+                );
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="个人在线简历网站，展示职业经历和技能">
+  <title>个人在线简历</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Babel CDN for JSX -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div id="root"></div>
+  <script type="text/babel">
+    // 导航栏组件
+    function NavBar() {
+      return (
+        <nav className="bg-blue-600 text-white p-4 fixed w-full top-0 shadow-md z-10">
+          <div className="container mx-auto flex justify-between items-center">
+            <h1 className="text-xl font-bold">个人简历</h1>
+            <ul className="flex space-x-4">
+              <li><a href="#home" className="hover:underline">主页</a></li>
+              <li><a href="#about" className="hover:underline">关于我</a></li>
+              <li><a href="#experience" className="hover:underline">工作经历</a></li>
+              <li><a href="#education" className="hover:underline">教育背景</a></li>
+              <li><a href="#skills" className="hover:underline">技能</a></li>
+              <li><a href="#contact" className="hover:underline">联系方式</a></li>
+            </ul>
+          </div>
+        </nav>
+      );
+    }
+
+    // 通用section组件
+    function Section({ id, title, children }) {
+      return (
+        <section id={id} className="py-16 px-4">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">{title}</h2>
+            {children}
+          </div>
+        </section>
+      );
+    }
+
+    // 主应用组件
+    function App() {
+      return (
+        <div>
+          <NavBar />
+          <div className="pt-16">
+            <Section id="home" title="欢迎">
+              <p className="text-lg text-center text-gray-600">欢迎访问我的个人简历网站！这里展示了我的职业经历、技能和联系方式。</p>
+            </Section>
+            <Section id="about" title="关于我">
+              <div className="text-lg text-gray-700 space-y-2">
+                <p><strong>姓名：</strong>张伟</p>
+                <p><strong>职业：</strong>前端开发工程师</p>
+                <p><strong>简介：</strong>拥有5年以上Web开发经验，擅长React、JavaScript和现代前端技术，热衷于构建用户友好的界面，具备良好的团队协作能力。</p>
+              </div>
+            </Section>
+            <Section id="experience" title="工作经历">
+              <div className="space-y-6">
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <h3 className="text-xl font-semibold text-blue-600">前端开发工程师 - ABC科技</h3>
+                  <p className="text-gray-600">2020.06 - 至今</p>
+                  <p className="text-gray-700">负责公司核心产品的Web前端开发，使用React和TypeScript优化用户界面，提升30%页面加载速度，主导多个项目的前端架构设计。</p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <h3 className="text-xl font-semibold text-blue-600">初级前端开发 - XYZ公司</h3>
+                  <p className="text-gray-600">2018.03 - 2020.05</p>
+                  <p className="text-gray-700">参与企业官网重构，实施响应式设计，改善移动端用户体验，协助团队完成多项功能开发。</p>
+                </div>
+              </div>
+            </Section>
+            <Section id="education" title="教育背景">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <p className="text-lg text-gray-700"><strong>清华大学</strong> - 计算机科学与技术学士</p>
+                <p className="text-gray-600">2014.09 - 2018.06</p>
+              </div>
+            </Section>
+            <Section id="skills" title="技能">
+              <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">React</li>
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">JavaScript</li>
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">Tailwind CSS</li>
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">TypeScript</li>
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">HTML/CSS</li>
+                <li className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">Git</li>
+              </ul>
+            </Section>
+            <Section id="contact" title="联系方式">
+              <div className="text-lg text-gray-700 space-y-2">
+                <p><strong>邮箱：</strong><a href="mailto:your.email@example.com" className="text-blue-600 hover:underline">your.email@example.com</a></p>
+                <p><strong>电话：</strong>+86 123 4567 8901</p>
+                <p><strong>LinkedIn：</strong><a href="https://linkedin.com/in/your-profile" className="text-blue-600 hover:underline">linkedin.com/in/your-profile</a></p>
+              </div>
+            </Section>
+          </div>
+        </div>
+      );
+    }
+
+    // 渲染应用
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
